@@ -1,0 +1,49 @@
+.container {
+    max-width: 90%;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: #1F2937;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .select-container {
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .options {
+    padding: 10px;
+    margin: 5px;
+    font-weight: bolder;
+    width: 15rem;
+  }
+
+  .set-container {
+    color: #fff;
+  }
+
+
+  .availability-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .days {
+    padding-right: 5px;
+  }
+
+  .save-btn {
+    padding: 10px;
+    margin: 5px;
+    width: 15rem;
+    font-weight: bolder;
+    color: #fff;
+    background-color: #3B82F6;
+    border: 0px solid;
+    border-radius: 4px;
+  }
