@@ -1,6 +1,6 @@
 .container {
     max-width: 90%;
-    margin: 10px auto;
+    margin: 100px auto;
     padding: 20px;
     background-color: #1F2937;
     border-radius: 8px;
@@ -33,8 +33,20 @@
     justify-content: center;
   }
 
+  .grid-contain{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .btn-grid{
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+  }
+
   .days {
     padding-right: 5px;
+    padding-top: 10px;
   }
 
   .save-btn {
@@ -46,4 +58,17 @@
     background-color: #3B82F6;
     border: 0px solid;
     border-radius: 4px;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .grid-contain{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+
+    .btn-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
   }

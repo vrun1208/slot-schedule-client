@@ -25,3 +25,10 @@
     font-weight: bolder;
     font-size: larger;
   }
+
+ @media only screen and (max-width: 600px){
+  .nav-items {
+    padding: 1em;
+    padding-right: 0;
+  }
+ }

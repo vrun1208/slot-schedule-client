@@ -32,7 +32,7 @@ const PhysioSchedule = () => {
   };
 
   const addSlotsTime = (slot) => {
-    const start = addMinutes(new Date(2024, 1, 1, 9, 0), slot*45);
+    const start = addMinutes(new Date(2024, 1, 1, 5, 30), slot*45);
     //const end = addMinutes(start, 45);
     return `${format(start, 'HH:mm')}`
   }
@@ -64,20 +64,22 @@ const PhysioSchedule = () => {
         <h3>SET AVAILABILITY</h3>
         <div className="availability-grid">
           {physioAvailability[physioId] && physioAvailability[physioId].map((hours, day) => (
-            <div key={day}>
+            <div key={day} className="grid-contain">
               <strong className="days">{weekDays[day+1]}:</strong>
-              {hours.map((slot, hour) => (
-                <button
-                  key={hour}
-                  className={`availability-slot vacant ${slot.state || 'vacant'}`}
-                  onClick={() => toggleAvailability(day, hour)}
-                >
-                   {/* {`${Math.floor(hour / 2) + 9}:${(hour % 2) === 0 ? '00' : '45'}`}
+              <div className="btn-grid">
+                {hours.map((slot, hour) => (
+                  <button
+                    key={hour}
+                    className={`availability-slot vacant ${slot.state || 'vacant'}`}
+                    onClick={() => toggleAvailability(day, hour)}
+                  >
+                    {/* {`${Math.floor(hour / 2) + 9}:${(hour % 2) === 0 ? '00' : '45'}`}
                   &ndash;
                   {`${Math.floor((hour + 1) / 2) + 9}:${((hour + 1) % 2) === 0 ? '00' : '45'}`} */}
-                  {addSlotsTime(hour)}
-                </button>
-              ))}
+                    {addSlotsTime(hour)}
+                  </button>
+                ))}
+              </div>
             </div>
           ))}
         </div>
