@@ -3,6 +3,7 @@ import axios from 'axios';
 import { addMinutes, format} from 'date-fns';
 import '../styles.css';
 import '../styles/physioView.css';
+//import useCustomTimeSlot from "./customSlot";
 
 const base_url = process.env.REACT_APP_API_URL;
 //console.log(base_url);
@@ -12,22 +13,16 @@ const PhysioSchedule = () => {
   const [physioId, setPhysioId] = useState(0);
   const weekDays = ['' ,'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+
   useEffect(() => {
     axios.get(`${base_url}/api/availability`)
       .then(response => setPhysioAvailability(response.data));
   }, []);
 
   const toggleAvailability = (day, hour) => {
-    // const newAvailability = [...physioAvailability];
-    // const currentSlot = newAvailability[physioId][day][hour];
-    // newAvailability[physioId][day][hour] = {
-    //   ...currentSlot,
-    //   state: currentSlot.state === 'vacant' ? 'allotted' : 'vacant',
-    // };
-    // setPhysioAvailability(newAvailability);
     const newAvailability = [...physioAvailability];
-    const currentState = newAvailability[physioId][day][hour].state;
-    newAvailability[physioId][day][hour].state = currentState === 'vacant' ? 'allotted' : 'vacant';
+    newAvailability[physioId][day][hour].state =
+    newAvailability[physioId][day][hour].state === 'vacant' ? 'allotted' : 'vacant';
     setPhysioAvailability(newAvailability);
   };
 
@@ -70,16 +65,13 @@ const PhysioSchedule = () => {
                 {hours.map((slot, hour) => (
                   <button
                     key={hour}
-                    className={`availability-slot vacant ${slot.state || 'vacant'}`}
+                    className={`availability-slot ${slot.state}`}
                     onClick={() => toggleAvailability(day, hour)}
                   >
-                    {/* {`${Math.floor(hour / 2) + 9}:${(hour % 2) === 0 ? '00' : '45'}`}
-                  &ndash;
-                  {`${Math.floor((hour + 1) / 2) + 9}:${((hour + 1) % 2) === 0 ? '00' : '45'}`} */}
                     {addSlotsTime(hour)}
                   </button>
                 ))}
-              </div>
+              </div>  
             </div>
           ))}
         </div>

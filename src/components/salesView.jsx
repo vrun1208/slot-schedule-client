@@ -13,10 +13,17 @@ const SalesView = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [remark, setRemark] = useState('');
   const weekDays = ['' ,'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  //const [res, setRes] = useState('allotted');
+  const [remarks, setRemarks] = useState([]);
 
   useEffect(() => {
     axios.get(`${base_url}/api/availability`)
       .then(response => setPhysioAvailability(response.data));
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${base_url}/api/remarks`)
+      .then(response => setRemarks(response.data));
   }, []);
 
   const handleDayChange = (e) => {
@@ -29,25 +36,64 @@ const SalesView = () => {
   };
 
   const calculateSlotTimes = (slotIndex) => {
-    const startTime = addMinutes(new Date(2022, 1, 1, 9, 0), slotIndex * 45);
-    const endTime = addMinutes(startTime, 45);
-    return `${format(startTime, 'HH:mm')} - ${format(endTime, 'HH:mm')}`;
+    const startTime = addMinutes(new Date(2022, 1, 1, 5, 30), slotIndex * 45);
+    //const endTime = addMinutes(startTime, 45);
+    return `${format(startTime, 'HH:mm')}`;
   };
 
-  const handleSelection = (physioId, slotTime, e) => {
-    setSelectedSlot({ physioId, slotTime });
-    setRemark({
-      ...remark,
-      [`${physioId}-${slotTime}`]: e.target.value,
-    });
+  const handleSelection = (physioId, selectedDay, slotTime, e) => {
+    setSelectedSlot({ physioId, selectedDay, slotTime });
+    //console.log(selectedSlot);
+    setRemark(e.target.value);
+    //console.log(remark);
   };
 
   const markAsAllocated = () => {
     if (selectedSlot) {
-      const { physioId, slotTime} = selectedSlot;
-      const slotKey = `${physioId}-${slotTime}`;
-      alert(`Physiotherapist ${physioId} - TimeSlot ${slotTime} marked as allocated. Remarks: ${remark[slotKey]}`);
+      const { physioId, selectedDay, slotTime} = selectedSlot;
+      //const slotKey = `${physioId}-${slotTime}`;
+      //alert(`Physiotherapist ${physioId} - TimeSlot ${slotTime} marked as allocated. Remarks: ${remark[slotKey]}`);
       //console.log(`Remarks: ${remark[slotKey]}`);
+
+      //const updatedAvailability = [...physioAvailability];
+      const updatedAvailability = [...physioAvailability];
+      //console.log(updatedAvailability);
+      const curr = updatedAvailability[physioId][selectedDay][slotTime].state; 
+      //console.log(curr);
+      updatedAvailability[physioId][selectedDay][slotTime].state = curr === 'allotted' ? 'reserved' : 'allotted';
+
+      setPhysioAvailability(updatedAvailability);
+      //console.log(physioAvailability);
+
+      axios.post(`${base_url}/api/availability`, {
+        physioId,
+        availability: updatedAvailability[physioId]
+      })
+      .then(response => {
+        console.log(response.data);
+        alert('Changes saved successfully!');
+      });
+
+      const newRemarks = [...remarks];
+      newRemarks.push({
+        day: selectedDay,
+        physioId,
+        slotTime,
+        remark
+      });
+      setRemarks(newRemarks);
+      //console.log(newRemarks);
+
+      axios.post(`${base_url}/api/remarks`, {
+        day: selectedDay,
+        physioId,
+        slotTime,
+        remark
+      }).then(response => {
+        console.log(response.data);
+        alert('Changes saved successfully!');
+      });
+
       setSelectedSlot(null);
       setRemark('');
     } 
@@ -56,15 +102,17 @@ const SalesView = () => {
   const getAvailableSlots = () => {
     const availableSlots = [];
 
-    physioAvailability.forEach((physio) => {
+    physioAvailability.forEach((physio, physioId) => {
       const slots = physio[selectedDay].reduce((acc, slot, slotIndex) => {
-        //console.log(slot.state);
-        if (slot.state === 'allotted') {
+
+        if (slot.state === `reserved` || slot.state === `allotted` ) {
           acc.push({
             time: calculateSlotTimes(slotIndex),
+            index: slotIndex,
             isAvailable: slot,
             state: slot.state,
-            physioId: physio.physioId
+            physioId: physioId,
+            day: selectedDay
           });
         }
         return acc;
@@ -72,12 +120,12 @@ const SalesView = () => {
 
       if (slots.length > 0) {
         availableSlots.push({
-          physioId: availableSlots.length+1,
+          Id: physioId,
           slots,
         });
       }
     });
-
+    //console.log(availableSlots);
     return availableSlots;
   };
 
@@ -125,25 +173,35 @@ const SalesView = () => {
       <div className='slot-container'>
         <h3>PHYSIOTHERAPIST AVAILABILITY</h3>
         {getAvailableSlots().map((physio) => (
-          <div key={physio.physioId}>
-            <strong>Physiotherapist {physio.physioId}:</strong>
+          <div key={physio.Id}>
+            <strong>Physiotherapist {physio.Id+1}:</strong>
             {filterSlotsByTime(physio.slots).map((slot) => (
-              <div key={slot.time} className={`availability-slot slot-alot-view`}>
+              <div key={slot.index} className={`availability-slot slot-alot-view`}>
                 <span>{slot.time}</span>
                 {slot.isAvailable ? (
                   <span>
-                  <input type="text" className='input-field'
-                  value={remark[`${physio.physioId}-${slot.time}`] || ''}
-                  onChange={(e) => handleSelection(physio.physioId, slot.time, e)}
-                  />
-                  {/* () => handleSelection(physio.physioId, selectedDay, physio.slots.indexOf(slot)) */}
-                  <button onClick={markAsAllocated} className='alot-btn'>
-                    Give Remarks
-                  </button>
+                    {remarks.map((remark) => {
+                      if (remark.day === slot.day && remark.physioId === slot.physioId && remark.slotTime === slot.index) {
+                        return (
+                          <div key={`${remark.day}-${remark.physioId}-${remark.slotTime}-remark`}>
+                            Remark: {remark.remark}
+                          </div>
+                        );
+                      } else{<span>varun hero</span>}
+                      return null ;
+                    })}
+                  {slot.state !== 'reserved' ? (
+                    <span>
+                    <input type="text" className='input-field'
+                    onChange={(e) => handleSelection(slot.physioId, slot.day, slot.index, e)}
+                    />
+                    <button onClick={markAsAllocated} className='alot-btn'>
+                      Give Remarks
+                    </button>
+                    </span>
+                  ) : null }
                   </span>
-                ) : (
-                  <span>Not Available</span>
-                )}
+                ) : <span>Not Available</span> }
               </div>
             ))}
           </div>

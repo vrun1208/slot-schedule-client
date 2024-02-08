@@ -26,7 +26,7 @@ const PatientView = () => {
     };
 
   const addSlotsTime = (slot) => {
-    const start = addMinutes(new Date(2024, 1, 1, 9, 0), slot*45);
+    const start = addMinutes(new Date(2024, 1, 1, 5, 30), slot*45);
     const end = addMinutes(start, 45);
     return `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`
   }
@@ -37,7 +37,7 @@ const PatientView = () => {
     physioAvailability.forEach((physio) => {   
       const slots = physio[selectedDay].reduce((acc, slot, hour) => {
         //console.log(slot.state);
-        if (slot.state === 'allotted' ) {
+        if (slot.state === 'allotted' || slot.state === 'reserved' ) {
           acc.push({
             time : addSlotsTime(hour),
             state: slot.state,
@@ -106,7 +106,7 @@ const PatientView = () => {
           <div className='av-slots' key={physio.physioId}>
             <strong>Available Physiotherapist :</strong>
             {filterSlotsByTime(physio.slots).map((slot) => (
-              <span key={slot.time} className={`availability-slot ${slot.state || 'allotted'}`}>
+              <span key={slot.time} className={`availability-slot ${slot.state}`}>
                 {slot.time}
               </span>
             ))}
