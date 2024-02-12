@@ -83,13 +83,6 @@ const PhysioSchedule = () => {
         console.log(physioAvailability);
       });
 
-      axios.post(`${base_url}/api/remarks`, {
-        physioId,
-        remark : '',
-      }).then(response => {
-        console.log(response.data);
-        alert('Changes saved successfully!');
-      });
   };
 
 
