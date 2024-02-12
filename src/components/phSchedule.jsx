@@ -68,7 +68,7 @@ const PhysioSchedule = () => {
   const addSlotsTime = (slot, hour) => {
     const start = addMinutes(new Date(2024, 1, 1, 5, 30), hour*45);
     //const end = addMinutes(start, 45);
-    physioAvailability[physioId][slot][hour].time = format(start, 'HH:mm');
+    //physioAvailability[physioId][slot][hour].time = format(start, 'HH:mm');
     return physioAvailability[physioId][slot][hour].time || `${format(start, 'HH:mm')}`;
   }
 
