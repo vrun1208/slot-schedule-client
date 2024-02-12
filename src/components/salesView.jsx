@@ -36,7 +36,8 @@ const SalesView = () => {
   };
 
   const calculateSlotTimes = (slotIndex) => {
-    const startTime = addMinutes(new Date(2022, 1, 1, 5, 30), slotIndex * 45);
+    const [hh, mm] = slotIndex.split(':').map(Number);
+    const startTime = new Date(2022, 1, 1, hh, mm);
     //const endTime = addMinutes(startTime, 45);
     return `${format(startTime, 'HH:mm')}`;
   };
@@ -107,7 +108,7 @@ const SalesView = () => {
 
         if (slot.state === `reserved` || slot.state === `allotted` ) {
           acc.push({
-            time: calculateSlotTimes(slotIndex),
+            time: calculateSlotTimes(slot.time),
             index: slotIndex,
             isAvailable: slot,
             state: slot.state,

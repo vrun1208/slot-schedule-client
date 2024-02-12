@@ -26,7 +26,8 @@ const PatientView = () => {
     };
 
   const addSlotsTime = (slot) => {
-    const start = addMinutes(new Date(2024, 1, 1, 5, 30), slot*45);
+    const [hh, mm] = slot.split(':').map(Number);
+    const start = new Date(2024,1,1,hh, mm);
     const end = addMinutes(start, 45);
     return `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`
   }
@@ -39,7 +40,7 @@ const PatientView = () => {
         //console.log(slot.state);
         if (slot.state === 'allotted' || slot.state === 'reserved' ) {
           acc.push({
-            time : addSlotsTime(hour),
+            time : addSlotsTime(slot.time),
             state: slot.state,
             physioId: physio.physioId,
           });
