@@ -99,6 +99,13 @@ const PhysioSchedule = () => {
         console.log(physioAvailability);
       });
 
+      axios.post(`${base_url}/api/remarks`, {
+        day: '' ,
+      }).then(response => {
+        console.log(response.data);
+        //alert('Changes saved successfully!');
+      });
+
   };
 
   //checks for overlapping slots!! ===
