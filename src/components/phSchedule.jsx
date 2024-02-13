@@ -22,29 +22,42 @@ const PhysioSchedule = () => {
       .then(response => setPhysioAvailability(response.data));
   }, []);
 
-  const toggleAvailability = (day, hour) => {
-    const selectedSlot = physioAvailability[physioId][day][hour];
+  // const CheckOverLapped = (day, hour) => {
+  //   const selectedSlot = physioAvailability[physioId][day][hour];
     
-    const overLapping = physioAvailability[physioId][day].find(slot => (
-      slot.state === 'allotted' && slot.time !== selectedSlot.time &&
-  (
-    (addMinutes(new Date(slot.time), 45) > new Date(selectedSlot.time)) ||
-    (addMinutes(new Date(selectedSlot.time), 45) > new Date(slot.time))
-  )
-    ))
-    console.log(overLapping);
+  //   const overLapping = physioAvailability[physioId][day].some(slot => {
+  //     return (
+  //       slot.state === 'allotted' && slot.time !== selectedSlot.time && checkOverLapping(selectedSlot, slot)
+  //     );
+  //   });
 
-    if(overLapping){
-        alert("please select different slot, it is overlapping!");
-    }else{
-      const startTime = addMinutes(new Date(2024,1,1,5,30), hour*45);
-      const newAvailability = [...physioAvailability];
-      const currState = selectedSlot.state;
-      newAvailability[physioId][day][hour].state = currState === 'vacant' ? 'allotted' : 'vacant';
-      newAvailability[physioId][day][hour].time = format(startTime, 'HH:mm');
-      setPhysioAvailability(newAvailability);
+  //   return overLapping;
+  // }
+
+  const toggleAvailability = (day, hour) => {
+    const newAvailability = [...physioAvailability];
+    const startTime = addMinutes(new Date(2024, 1, 1, 5, 30), hour * 45);
+    newAvailability[physioId][day][hour].time = format(startTime, 'HH:mm');
+    const selectedSlot = physioAvailability[physioId][day][hour];
+
+    // Check for overlapping slots before toggling
+    const isOverlapping = physioAvailability[physioId][day].find(slot => {
+      return (
+        (slot.state === 'allotted' || slot.state === 'reserved') &&
+        slot.time !== selectedSlot.time &&
+        checkOverLapping(selectedSlot, slot)
+      );
+    });
+
+    if (isOverlapping) {
+      alert("Cannot toggle overlapping slot!");
+      return;
     }
-    
+
+    const currState = newAvailability[physioId][day][hour].state;
+    newAvailability[physioId][day][hour].state = currState === 'vacant' ? 'allotted' : 'vacant';
+    //newAvailability[physioId][day][hour].time ===  format(startTime, 'HH:mm') ? format(startTime, 'HH:mm') : newAvailability[physioId][day][hour].time ;
+    setPhysioAvailability(newAvailability);
   };
 
   const modifySlotTime = (day, hour) => {
@@ -52,7 +65,7 @@ const PhysioSchedule = () => {
   };
 
   const saveModifiedSlotTime = () => { 
-    console.log(newSlotTime);
+    //console.log(newSlotTime);
     const newAvailability = [...physioAvailability];
     const { day, hour } = modifiedSlots;
     const prevSlotTime = addMinutes(new Date(2024, 1, 1, 5, 30), hour*45);
@@ -86,6 +99,24 @@ const PhysioSchedule = () => {
         console.log(physioAvailability);
       });
 
+  };
+
+  //checks for overlapping slots!! ===
+  const checkOverLapping = (selectedSlot, existingSlot) => {
+    const [hh, mm] = selectedSlot.time.split(':').map(Number);
+    const selectedStart = new Date(2024,1,1, hh, mm);
+    const selectedEnd = addMinutes(selectedStart, 45);
+
+    const [ehh, emm] = existingSlot.time.split(':').map(Number);
+    const existingStart = new Date(2024,1,1, ehh, emm);
+    const existingEnd = addMinutes(existingStart, 45);
+
+    return (
+      (selectedStart >= existingStart && selectedStart < existingEnd) ||
+      (selectedEnd > existingStart && selectedEnd <= existingEnd) ||
+      (existingStart >= selectedStart && existingStart < selectedEnd) ||
+      (existingEnd > selectedStart && existingEnd <= selectedEnd)
+    );
   };
 
 

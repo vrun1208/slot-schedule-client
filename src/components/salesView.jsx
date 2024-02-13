@@ -1,7 +1,7 @@
 // src/SalesView.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { addMinutes, format } from 'date-fns';
+import { format } from 'date-fns';
 import '../styles/salesView.css';
 
 const base_url = process.env.REACT_APP_API_URL;
@@ -68,7 +68,7 @@ const SalesView = () => {
 
       axios.post(`${base_url}/api/availability`, {
         physioId,
-        availability: updatedAvailability[physioId]
+        availability: physioAvailability[physioId]
       })
       .then(response => {
         console.log(response.data);
